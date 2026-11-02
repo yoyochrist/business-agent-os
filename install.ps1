@@ -12,7 +12,7 @@ New-Item -ItemType Directory -Force -Path $installDir | Out-Null
 $api = "https://api.github.com/repos/yoyochrist/business-agent-os/releases/latest"
 try {
   $release = Invoke-RestMethod -Uri $api -Headers @{ "User-Agent" = "BusinessAgentOS-Installer" }
-  $asset = $release.assets | Where-Object { $_.name -eq "BusinessAgentOS.exe" } | Select-Object -First 1
+  $asset = $release.assets | Where-Object { $_.name -eq "BusinessAgentOS-Windows.exe" } | Select-Object -First 1
 } catch { $asset = $null }
 if (-not $asset) {
   Write-Host "No released Windows executable yet." -ForegroundColor Yellow
