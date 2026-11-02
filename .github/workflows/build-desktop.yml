@@ -22,13 +22,13 @@ jobs:
         include:
           - os: windows-latest
             artifact: BusinessAgentOS-Windows
-            binary: dist/BusinessAgentOS.exe
+            binary: dist/BusinessAgentOS-Windows.exe
           - os: macos-latest
             artifact: BusinessAgentOS-macOS
-            binary: dist/BusinessAgentOS
+            binary: dist/BusinessAgentOS-macOS
           - os: ubuntu-latest
             artifact: BusinessAgentOS-Linux
-            binary: dist/BusinessAgentOS
+            binary: dist/BusinessAgentOS-Linux
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
@@ -39,6 +39,14 @@ jobs:
         run: python -m pip install "pyinstaller>=6.10,<7"
       - name: Build self-contained executable
         run: python -m PyInstaller --noconfirm --clean --onefile --name BusinessAgentOS --add-data ".agents/skills:.agents/skills" app.py
+      - name: Rename binary for distribution
+        shell: bash
+        run: |
+          if [ "${{ runner.os }}" = "Windows" ]; then
+            mv dist/BusinessAgentOS.exe "${{ matrix.binary }}"
+          else
+            mv dist/BusinessAgentOS "${{ matrix.binary }}"
+          fi
       - name: Upload platform download
         uses: actions/upload-artifact@v4
         with:
