@@ -4,7 +4,13 @@ Local-first business agent starter, controlled from a browser, Claude Code, Code
 
 **Status:** prototype, not yet a complete A2A/Graphify service or native installer. Draft-only: no autonomous email sending, publishing or payments.
 
-## Installation
+## Easy installation (no Python required)
+
+Read [INSTALL.md](INSTALL.md), then download a built executable from the [Desktop Builds workflow](https://github.com/yoyochrist/business-agent-os/actions/workflows/build-desktop.yml). Extract and double-click the executable. Downloads only appear after a successful build.
+
+You still need an officially installed and signed-in Codex CLI or Claude Code CLI to execute AI tasks.
+
+## Developer installation
 1. Install Python 3.11+.
 2. Install the official **Codex CLI** or **Claude Code CLI** and sign in through its own normal login flow.
 3. Download this repository.
