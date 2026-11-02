@@ -4,20 +4,41 @@ Local-first business agent starter, controlled from a browser, Claude Code, Code
 
 **Status:** prototype, not yet a complete A2A/Graphify service or native installer. Draft-only: no autonomous email sending, publishing or payments.
 
-## One-command terminal installation
+## One-command installation
 
-**Windows PowerShell:**
+### macOS (Terminal)
+
+Open **Terminal**, paste this command and press Return:
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.sh)"
+```
+
+Once installed, launch Business Agent OS with:
+
+```bash
+~/.local/bin/business-agent-os
+```
+
+The dashboard opens at http://127.0.0.1:8765.
+
+**macOS requirements:** A published [macOS GitHub Release](https://github.com/yoyochrist/business-agent-os/releases) must exist, and the executable is currently unsigned/not notarized, so macOS may block it. The app reuses an officially installed and signed-in Codex or Claude Code CLI; it cannot sign in to either service on your behalf.
+
+### Windows (PowerShell)
+
 ```powershell
 irm https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.ps1 | iex
 ```
 
-**macOS / Linux:**
-```sh -c "$(curl -fsSL https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.sh)"
+### Linux (Terminal)
+
+```bash
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.sh)"
 ```
 
-Review the installer scripts before running commands downloaded from the Internet. These installers download official **GitHub Release** executables. A published release must exist; otherwise the installers provide a link to the build workflow. Neither installer silently downloads credentials or asks for API keys. Users still need to install and sign in to an official Codex or Claude CLI separately.
+**Before installing:** Review the [macOS/Linux installer script](install.sh) or [Windows installer script](install.ps1). These commands download published GitHub Release binaries, not credentials. If a release is not yet published, the installer provides the [desktop build workflow](https://github.com/yoyochrist/business-agent-os/actions/workflows/build-desktop.yml); the installation will not finish automatically.
 
-See [INSTALL.md](INSTALL.md) for detailed alternatives.
+For alternatives and troubleshooting, read [INSTALL.md](INSTALL.md).
 
 ## Easy installation (no Python required)
 
