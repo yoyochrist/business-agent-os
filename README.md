@@ -2,7 +2,7 @@
 
 Local-first business agent starter, controlled from a browser, Claude Code, Codex or Antigravity skill instructions.
 
-**Status:** prototype, not yet a complete A2A/Graphify service or native installer. Draft-only: no autonomous email sending, publishing or payments.
+**Status:** prototype, not yet a complete A2A/Graphify service or native installer. Draft-only: no autonomous email sending, publishing or payments. Task API requests require a per-run random token; CLI prompts are passed through standard input rather than command-line arguments.
 
 ## One-command installation
 
@@ -65,6 +65,23 @@ PM, HR, Accountant, Finance, Sales, Marketing plus Business Orchestrator, Knowle
 - **Knowledge:** SQLite task history only; Graphify indexing and PostgreSQL graph are future milestones.
 - **Email and messaging:** no external sending currently implemented.
 - **A2A/MCP:** specified as planned architecture, not yet operational.
+
+## First release: maintainer checklist
+
+The terminal installers require a published GitHub Release. The connected GitHub integration cannot publish one automatically. To publish the first release:
+
+1. Open [Draft a new release](https://github.com/yoyochrist/business-agent-os/releases/new).
+2. Create tag `v0.1.0` targeting `main`, then publish.
+3. The `release.published` workflow will build Windows, macOS and Linux binaries and attempt to attach them to the release.
+4. Check the [Build desktop downloads workflow](https://github.com/yoyochrist/business-agent-os/actions/workflows/build-desktop.yml) and confirm all three release assets are attached before recommending the one-line installers.
+
+**Security note:** Session tokens are randomly generated on startup, carried in the browser URL fragment and then removed from the address bar. Do not share an active session link or use this prototype on a shared machine for sensitive client information. No persistent user accounts or OS-level access controls exist. Executables are currently unsigned; Windows SmartScreen and macOS Gatekeeper may warn.
+
+## Tests
+
+```bash
+python -m unittest discover -s tests
+```
 
 ## Roadmap
 1. Local authentication and robust single-instance dashboard
