@@ -91,5 +91,9 @@ python -m unittest discover -s tests
 5. Inbox/communication hooks with human approval and audit trail
 6. Signed installers for non-technical users
 
+## Signed desktop releases
+
+Current desktop artifacts are unsigned and may trigger Windows SmartScreen or macOS Gatekeeper. See [SIGNING.md](SIGNING.md) for the verified publisher identity, Windows code signing, macOS Developer ID/notarization, and release verification process. Until those credentials and CI steps are configured, treat packages as **unsigned previews** rather than warning-free production installers.
+
 ## Safety
 Do not expose the local server to the public Internet. Do not run tasks with untrusted local credentials. Any future provider/connection must use official authentication methods only.
