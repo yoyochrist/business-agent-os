@@ -4,6 +4,21 @@ Local-first business agent starter, controlled from a browser, Claude Code, Code
 
 **Status:** prototype, not yet a complete A2A/Graphify service or native installer. Draft-only: no autonomous email sending, publishing or payments.
 
+## One-command terminal installation
+
+**Windows PowerShell:**
+```powershell
+irm https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.ps1 | iex
+```
+
+**macOS / Linux:**
+```sh -c "$(curl -fsSL https://raw.githubusercontent.com/yoyochrist/business-agent-os/main/install.sh)"
+```
+
+Review the installer scripts before running commands downloaded from the Internet. These installers download official **GitHub Release** executables. A published release must exist; otherwise the installers provide a link to the build workflow. Neither installer silently downloads credentials or asks for API keys. Users still need to install and sign in to an official Codex or Claude CLI separately.
+
+See [INSTALL.md](INSTALL.md) for detailed alternatives.
+
 ## Easy installation (no Python required)
 
 Read [INSTALL.md](INSTALL.md), then download a built executable from the [Desktop Builds workflow](https://github.com/yoyochrist/business-agent-os/actions/workflows/build-desktop.yml). Extract and double-click the executable. Downloads only appear after a successful build.
