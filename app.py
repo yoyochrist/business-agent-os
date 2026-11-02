@@ -1,5 +1,6 @@
 """Local browser prototype using official authenticated CLI executables; no provider SDK."""
 import json
+import sys
 import os
 import shutil
 import sqlite3
@@ -11,8 +12,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
-ROOT = Path(__file__).resolve().parent
-DB = ROOT / "data" / "tasks.db"
+ROOT = Path(getattr(sys, "_MEIPASS", Path(__file__).resolve().parent))
+DATA_ROOT = Path.home() / ".business-agent-os"
+DB = DATA_ROOT / "tasks.db"
 ROLES = ("business", "pm", "hr", "accountant", "finance", "sales", "marketing", "knowledge", "approvals")
 MAX_PROMPT = 12000
 
@@ -127,5 +129,5 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     init_db()
     print("Business Agent OS: http://127.0.0.1:8765")
-    webbrowser.open("http://127.0.0.1:8765")
+    threading.Timer(0.8, lambda: webbrowser.open("http://127.0.0.1:8765")).start()
     ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()
