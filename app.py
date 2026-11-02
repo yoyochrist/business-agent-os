@@ -1,5 +1,7 @@
 """Local browser prototype using official authenticated CLI executables; no provider SDK."""
 import json
+import secrets
+import hmac
 import sys
 import os
 import shutil
@@ -17,6 +19,7 @@ DATA_ROOT = Path.home() / ".business-agent-os"
 DB = DATA_ROOT / "tasks.db"
 ROLES = ("business", "pm", "hr", "accountant", "finance", "sales", "marketing", "knowledge", "approvals")
 MAX_PROMPT = 12000
+SESSION_TOKEN = secrets.token_urlsafe(32)
 
 def init_db():
     DB.parent.mkdir(parents=True, exist_ok=True)
@@ -36,13 +39,13 @@ def execute_task(task_id, role, provider, prompt):
     )
     try:
         if provider == "codex":
-            argv = ["codex", "exec", "--skip-git-repo-check", instruction]
+            argv = ["codex", "exec", "--skip-git-repo-check", "-"]
         elif provider == "claude":
-            argv = ["claude", "-p", instruction]
+            argv = ["claude", "-p"]
         else:
             raise ValueError("Unsupported provider")
         result = subprocess.run(
-            argv, cwd=ROOT, capture_output=True, text=True, timeout=180,
+            argv, cwd=ROOT, input=instruction, capture_output=True, text=True, timeout=180,
             env={**os.environ, "NO_COLOR": "1"}, check=False
         )
         output = result.stdout if result.returncode == 0 else "CLI error: " + (result.stderr or result.stdout)
@@ -66,15 +69,18 @@ small{color:#657289}
 <label>Task</label><textarea id="prompt" placeholder="Prepare a delivery plan for this customer..."></textarea>
 <button id="run">Run draft task</button><h2>Result</h2><pre id="result">No task yet.</pre>
 </main><script>
+const token=window.location.hash.startsWith("#token=") ? decodeURIComponent(window.location.hash.slice(7)) : sessionStorage.getItem("business-agent-token");
+if(token) {sessionStorage.setItem("business-agent-token",token);history.replaceState(null,"",location.pathname);}
+else {document.getElementById("result").textContent="Unauthorized session. Open the URL launched by Business Agent OS.";}
 for(const role of ["business","pm","hr","accountant","finance","sales","marketing","knowledge","approvals"]){
 const opt=document.createElement("option");opt.value=role;opt.textContent=role;document.getElementById("role").appendChild(opt)}
 document.getElementById("run").addEventListener("click",async()=>{
-const out=document.getElementById("result");out.textContent="Starting...";
+const out=document.getElementById("result");if(!token){out.textContent="Missing session token. Relaunch the app.";return;}out.textContent="Starting...";
 try{
-const r=await fetch("/tasks",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({
+const r=await fetch("/tasks",{method:"POST",headers:{"Content-Type":"application/json","X-Session-Token":token},body:JSON.stringify({
 provider:document.getElementById("provider").value,role:document.getElementById("role").value,prompt:document.getElementById("prompt").value})});
 const data=await r.json();if(!r.ok){out.textContent=data.error;return}
-const poll=async()=>{const res=await fetch("/tasks/"+data.id);const task=await res.json();
+const poll=async()=>{const res=await fetch("/tasks/"+data.id,{headers:{"X-Session-Token":token}});const task=await res.json();
 out.textContent=task.status==="running"?"Agent running...":task.result;
 if(task.status==="running")setTimeout(poll,1500)};poll()
 }catch(e){out.textContent=String(e)}
@@ -91,11 +97,17 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def authorized(self):
+        supplied = self.headers.get("X-Session-Token", "")
+        return hmac.compare_digest(supplied, SESSION_TOKEN)
+
     def do_GET(self):
         path = urlparse(self.path).path
         if path == "/":
             return self.reply(200, HTML, "text/html; charset=utf-8")
         if path.startswith("/tasks/"):
+            if not self.authorized():
+                return self.reply(401, {"error": "Unauthorized"})
             with sqlite3.connect(DB) as db:
                 db.row_factory = sqlite3.Row
                 row = db.execute("SELECT id,role,provider,status,result FROM tasks WHERE id=?", (path.rsplit("/", 1)[-1],)).fetchone()
@@ -105,6 +117,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         if self.path != "/tasks":
             return self.reply(404, {"error": "Not found"})
+        if not self.authorized():
+            return self.reply(401, {"error": "Unauthorized"})
         origin = self.headers.get("Origin")
         if origin not in (None, "http://127.0.0.1:8765", "http://localhost:8765"):
             return self.reply(403, {"error": "Invalid origin"})
@@ -129,5 +143,5 @@ class Handler(BaseHTTPRequestHandler):
 if __name__ == "__main__":
     init_db()
     print("Business Agent OS: http://127.0.0.1:8765")
-    threading.Timer(0.8, lambda: webbrowser.open("http://127.0.0.1:8765")).start()
+    threading.Timer(0.8, lambda: webbrowser.open("http://127.0.0.1:8765/#token=" + SESSION_TOKEN)).start()
     ThreadingHTTPServer(("127.0.0.1", 8765), Handler).serve_forever()
